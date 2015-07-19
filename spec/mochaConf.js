@@ -1,6 +1,8 @@
+var env = require('./environment.js');
+
 // A small suite to make sure the mocha frameowork works.
 exports.config = {
-  seleniumAddress: 'http://localhost:4444/wd/hub',
+  seleniumAddress: env.seleniumAddress,
 
   framework: 'mocha',
 
@@ -9,16 +11,12 @@ exports.config = {
     'mocha/*_spec.js'
   ],
 
-  capabilities: {
-    'browserName': 'chrome'
-  },
+  capabilities: env.capabilities,
 
-  baseUrl: 'http://localhost:' + (process.env.HTTP_PORT || '8000'),
+  baseUrl: env.baseUrl,
 
-  params: {
-    login: {
-      user: 'Jane',
-      password: '1234'
-    }
+  mochaOpts: {
+    reporter: 'spec',
+    timeout: 4000
   }
 };

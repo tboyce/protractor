@@ -1,11 +1,17 @@
-testapp/
-spec/
 debugging/
+spec/
+stress/
 selenium/
+debugging/
+testapp/inbrowsertest/
+website/
 
 .npmignore
+.travis.yml
+changes.sh
 chromedriver.log
 libpeerconnection.log
-changes.sh
+npm-debug.log
+new.txt
 xmloutput*
-.travis.yml
+release.md

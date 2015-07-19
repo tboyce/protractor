@@ -2,38 +2,9 @@ var Runner = require('../../lib/runner');
 var q = require('q');
 
 describe('the Protractor runner', function() {
-  var mockDriverProvider;
-
-  beforeEach(function() {
-    mockDriverProvider = jasmine.createSpyObj(
-        'mockDriverProvider',
-        ['setupEnv', 'teardownEnv', 'getDriver']);
-
-    mockDriverProvider.setupEnv.andCallFake(function() {
-      return q.fcall(function() {});
-    });
-
-    mockDriverProvider.teardownEnv.andCallFake(function() {
-      return q.fcall(function() {});
-    });
-
-    mockDriverProvider.getDriver.andReturn({
-      // A fake driver.
-      manage: function() {
-        return {
-          timeouts: function() {
-            return {
-              setScriptTimeout: function() {}
-            };
-          }
-        };
-      }
-    });
-  });
-
   it('should export its config', function() {
     var config = {
-      foo: 'bar',
+      foo: 'bar'
     };
 
     var runner = new Runner(config);
@@ -43,21 +14,17 @@ describe('the Protractor runner', function() {
 
   it('should run', function(done) {
     var config = {
+      mockSelenium: true,
       specs: ['*.js'],
-      framework: 'simpleprint'
+      framework: 'debugprint'
     };
     var exitCode;
-    Runner.prototype.loadDriverProvider_ = function() {
-      this.driverprovider_ = mockDriverProvider;
-    };
     Runner.prototype.exit_ = function(exit) {
       exitCode = exit;
     };
     var runner = new Runner(config);
 
     runner.run().then(function() {
-      expect(mockDriverProvider.setupEnv).toHaveBeenCalled();
-      expect(mockDriverProvider.teardownEnv).toHaveBeenCalled();
       expect(exitCode).toEqual(0);
       done();
     });
@@ -65,20 +32,31 @@ describe('the Protractor runner', function() {
 
   it('should fail with no specs', function() {
     var config = {
+      mockSelenium: true,
       specs: [],
-      framework: 'simpleprint'
+      framework: 'debugprint'
     };
     var exitCode;
-    Runner.prototype.loadDriverProvider_ = function() {
-      this.driverprovider_ = mockDriverProvider;
-    };
     Runner.prototype.exit_ = function(exit) {
       exitCode = exit;
     };
     var runner = new Runner(config);
 
     expect(function() {
-      runner.run()
+      runner.run();
     }).toThrow();
+  });
+
+  it('should fail when no custom framework is defined', function(done) {
+    var config = {
+      mockSelenium: true,
+      specs: ['*.js'],
+      framework: 'custom'
+    };
+
+    var runner = new Runner(config);
+    runner.run().then(function() {
+      done.fail('expected error when no custom framework is defined');
+    }, done);
   });
 });

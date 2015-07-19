@@ -1,5 +1,4 @@
 var util = require('util');
-var port =  process.env.HTTP_PORT || '8000';
 
 describe('no protractor at all', function() {
   it('should still do normal tests', function() {
@@ -15,12 +14,17 @@ describe('protractor library', function() {
     expect(By).toBeDefined();
     expect(element).toBeDefined();
     expect($).toBeDefined();
+    expect(DartObject).toBeDefined();
+    var obj = {};
+    var dartProxy = new DartObject(obj);
+    expect(dartProxy.o === obj).toBe(true);
   });
 
-  it('should wrap webdriver', function() {
-    browser.get('index.html');
-    expect(browser.getTitle()).toEqual('My AngularJS App');
-  });
+  it('should export other webdriver classes onto the global protractor',
+      function() {
+        expect(protractor.ActionSequence).toBeDefined();
+        expect(protractor.Key.RETURN).toEqual('\uE006');
+      });
 
   it('should export custom parameters to the protractor instance', function() {
     expect(browser.params.login).toBeDefined();
@@ -29,25 +33,36 @@ describe('protractor library', function() {
   });
 
   it('should allow a mix of using protractor and using the driver directly',
-    function() {
-      browser.get('index.html');
-      expect(browser.getCurrentUrl()).
-          toEqual('http://localhost:'+port+'/index.html#/form')
-
-      browser.driver.findElement(protractor.By.linkText('repeater')).click();
-      expect(browser.driver.getCurrentUrl()).
-          toEqual('http://localhost:'+port+'/index.html#/repeater');
-
-      browser.navigate().back();
-      expect(browser.driver.getCurrentUrl()).
-          toEqual('http://localhost:'+port+'/index.html#/form');
-    });
-
-  it('should export other webdriver classes onto the global protractor',
       function() {
-        expect(protractor.ActionSequence).toBeDefined();
-        expect(protractor.Key.RETURN).toEqual('\uE006');
+        browser.get('index.html');
+        expect(browser.getCurrentUrl()).toMatch('#/form');
+
+        browser.driver.findElement(protractor.By.linkText('repeater')).click();
+        expect(browser.driver.getCurrentUrl()).toMatch('#/repeater');
+
+        browser.navigate().back();
+        expect(browser.driver.getCurrentUrl()).toMatch('#/form');
+      });
+
+  it('should have access to the processed config block', function() {
+    function containsMatching(arr, string) {
+      var contains = false;
+      for (var i = 0; i < arr.length; ++i) {
+        if (arr[i].indexOf(string) !== -1) {
+          contains = true;
+        }
+      }
+      return contains;
+    }
+
+    browser.getProcessedConfig().then(function(config) {
+      expect(config.params.login).toBeDefined();
+      expect(config.params.login.user).toEqual('Jane');
+      expect(config.params.login.password).toEqual('1234');
+      expect(containsMatching(config.specs, 'lib_spec.js')).toBe(true);
+      expect(config.capabilities).toBeDefined();
     });
+  });
 
   it('should allow adding custom locators', function() {
     var findMenuItem = function() {
@@ -89,18 +104,28 @@ describe('protractor library', function() {
 
     browser.get('index.html');
     expect(element(by.menuItemWithName('.menu li', 'repeater')).isPresent());
-    expect(element(by.menuItemWithName('.menu li', 'repeater')).getText()).toEqual('repeater');
+    expect(element(by.menuItemWithName('.menu li', 'repeater')).getText()).
+        toEqual('repeater');
   });
 
   describe('helper functions', function() {
     it('should get the absolute URL', function() {
       browser.get('index.html');
       expect(browser.getLocationAbsUrl()).
-          toEqual('http://localhost:'+port+'/index.html#/form');
+          toMatch('/form');
 
       element(by.linkText('repeater')).click();
       expect(browser.getLocationAbsUrl()).
-          toEqual('http://localhost:'+port+'/index.html#/repeater');
+          toMatch('/repeater');
     });
-  })
+
+    it('should navigate to another url with setLocation', function() {
+      browser.get('index.html');
+
+      browser.setLocation('/repeater');
+
+      expect(browser.getLocationAbsUrl()).
+          toMatch('/repeater');
+    });
+  });
 });

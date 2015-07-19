@@ -1,6 +1,9 @@
-// The main suite of Protractor tests.
+var env = require('./environment.js');
+
 exports.config = {
-  seleniumAddress: 'http://localhost:4444/wd/hub',
+  mockSelenium: true,
+
+  framework: 'jasmine2',
 
   // Spec patterns are relative to this directory.
   suites: {
@@ -9,23 +12,7 @@ exports.config = {
     failingtest: 'suites/always_fail_spec.js'
   },
 
-  // Exclude patterns are relative to this directory.
-  exclude: [
-    'basic/exclude*.js'
-  ],
+  capabilities: env.capabilities,
 
-  chromeOnly: false,
-
-  capabilities: {
-    'browserName': 'chrome'
-  },
-
-  baseUrl: 'http://localhost:8000',
-
-  params: {
-    login: {
-      user: 'Jane',
-      password: '1234'
-    }
-  }
+  baseUrl: env.baseUrl
 };

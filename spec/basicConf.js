@@ -1,6 +1,10 @@
+var env = require('./environment.js');
+
 // The main suite of Protractor tests.
 exports.config = {
-  seleniumAddress: 'http://localhost:4444/wd/hub',
+  seleniumAddress: env.seleniumAddress,
+
+  framework: 'jasmine2',
 
   // Spec patterns are relative to this directory.
   specs: [
@@ -12,13 +16,14 @@ exports.config = {
     'basic/exclude*.js'
   ],
 
-  chromeOnly: false,
+  capabilities: env.capabilities,
 
-  capabilities: {
-    'browserName': 'chrome'
+  baseUrl: env.baseUrl,
+
+  jasmineNodeOpts: {
+    isVerbose: true,
+    realtimeFailure: true
   },
-
-  baseUrl: 'http://localhost:' + (process.env.HTTP_PORT || '8000'),
 
   params: {
     login: {

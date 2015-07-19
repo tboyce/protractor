@@ -12,7 +12,7 @@ describe('the config parser', function() {
   it('should merge in config from an object', function() {
     var toAdd = {
       rootElement: '.mydiv'
-    }
+    };
     var config = new ConfigParser().addConfig(toAdd).getConfig();
     expect(config.specs).toEqual([]);
     expect(config.rootElement).toEqual('.mydiv');
@@ -26,13 +26,13 @@ describe('the config parser', function() {
     expect(config.rootElement).toEqual('.mycontainer');
     expect(config.onPrepare.indexOf(path.normalize('/spec/unit/data/foo/bar.js'))).not.toEqual(-1);
     expect(config.specs.length).toEqual(1);
-    expect(config.specs[0]).toEqual('fakespec*.js');
+    expect(config.specs[0]).toEqual('fakespec[AB].js');
   });
 
   it('should keep filepaths relative to the cwd when merging', function() {
     var toAdd = {
       onPrepare: 'baz/qux.js'
-    }
+    };
 
     var config = new ConfigParser().addConfig(toAdd).getConfig();
 
@@ -41,10 +41,10 @@ describe('the config parser', function() {
 
   describe('resolving globs', function() {
     it('should resolve relative to the cwd', function() {
-      spyOn(process, 'cwd').andReturn(__dirname + '/');
+      spyOn(process, 'cwd').and.returnValue(__dirname + '/');
       var toAdd = {
-        specs: 'data/*spec*.js'
-      }
+        specs: 'data/*spec[AB].js'
+      };
       var config = new ConfigParser().addConfig(toAdd).getConfig();
       var specs = ConfigParser.resolveFilePatterns(config.specs);
       expect(specs.length).toEqual(2);

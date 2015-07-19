@@ -6,12 +6,13 @@ function AsyncCtrl($scope, $http, $timeout, $location) {
   $scope.slowAngularTimeoutPromiseStatus = 'not started';
   $scope.slowHttpPromiseStatus = 'not started';
   $scope.routingChangeStatus = 'not started';
+  $scope.templateUrl = '/fastTemplateUrl';
 
   $scope.slowHttp = function() {
     $scope.slowHttpStatus = 'pending...';
     $http({method: 'GET', url: '/slowcall'}).success(function() {
       $scope.slowHttpStatus = 'done';
-    })
+    });
   };
 
   $scope.slowFunction = function() {
@@ -20,7 +21,7 @@ function AsyncCtrl($scope, $http, $timeout, $location) {
       t++;
     }
     $scope.slowFunctionStatus = 'done';
-  }
+  };
 
   $scope.slowTimeout = function() {
     $scope.slowTimeoutStatus = 'pending...';
@@ -28,21 +29,21 @@ function AsyncCtrl($scope, $http, $timeout, $location) {
       $scope.$apply(function() {
         $scope.slowTimeoutStatus = 'done';
       });
-    }, 2000);
+    }, 5000);
   };
 
   $scope.slowAngularTimeout = function() {
     $scope.slowAngularTimeoutStatus = 'pending...';
     $timeout(function() {
       $scope.slowAngularTimeoutStatus = 'done';
-    }, 2000);
+    }, 5000);
   };
 
   $scope.slowAngularTimeoutPromise = function() {
     $scope.slowAngularTimeoutPromiseStatus = 'pending...';
     $timeout(function() {
       // intentionally empty
-    }, 2000).then(function() {
+    }, 5000).then(function() {
       $scope.slowAngularTimeoutPromiseStatus = 'done';
     });
   };
@@ -60,6 +61,10 @@ function AsyncCtrl($scope, $http, $timeout, $location) {
     $scope.routingChangeStatus = 'pending...';
     $location.url('/slowloader');
   };
-};
+
+  $scope.changeTemplateUrl = function() {
+    $scope.templateUrl = '/slowTemplateUrl';
+  };
+}
 
 AsyncCtrl.$inject = ['$scope', '$http', '$timeout', '$location'];

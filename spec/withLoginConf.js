@@ -1,21 +1,22 @@
+var env = require('./environment.js');
+
 // This is the configuration file showing how a suite of tests might
 // handle log-in using the onPrepare field.
-var port =  + (process.env.HTTP_PORT || '8000'),
-    baseUrl = 'http://localhost:8000';
-
 exports.config = {
-  seleniumAddress: 'http://localhost:4444/wd/hub',
+  seleniumAddress: env.seleniumAddress,
+
+  framework: 'jasmine2',
 
   specs: [
     'login/login_spec.js'
   ],
 
-  capabilities: {
-    'browserName': 'chrome'
-  },
+  capabilities: env.capabilities,
+
+  baseUrl: env.baseUrl,
 
   onPrepare: function() {
-    browser.driver.get(baseUrl + '/login.html');
+    browser.driver.get(env.baseUrl + '/login.html');
 
     browser.driver.findElement(by.id('username')).sendKeys('Jane');
     browser.driver.findElement(by.id('password')).sendKeys('1234');
@@ -24,12 +25,10 @@ exports.config = {
     // Login takes some time, so wait until it's done.
     // For the test app's login, we know it's done when it redirects to
     // index.html.
-    browser.driver.wait(function() {
+    return browser.driver.wait(function() {
       return browser.driver.getCurrentUrl().then(function(url) {
         return /index/.test(url);
       });
-    });
-  },
-
-  baseUrl: baseUrl,
+    }, 10000);
+  }
 };
